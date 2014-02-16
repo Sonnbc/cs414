@@ -22,24 +22,20 @@ public class Recorder
     args = Gst.init("SwingVideoTest", args); 
     pipe = new Pipeline("pipeline"); 
 
-    final Element videosrc = ElementFactory.make("qtkitvideosrc", "source"); 
-    final Element videofilter = ElementFactory.make("capsfilter", "filter"); 
-    videofilter.setCaps(Caps.fromString("video/x-raw-yuv, width=640, height=480")); 
+    final Element camera = ElementFactory.make("qtkitvideosrc", "camera"); 
+    final Element videoFilter = ElementFactory.make("capsfilter", "videofilter"); 
+    videoFilter.setCaps(Caps.fromString("video/x-raw-yuv, width=640, height=480")); 
     
     final Tee tee = new Tee("tee");
-    pipe.addMany(videosrc, videofilter, tee);
-    Element.linkMany(videosrc, videofilter, tee);
+    pipe.addMany(camera, videoFilter, tee);
+    Element.linkMany(camera, videoFilter, tee);
     SwingUtilities.invokeLater(new Runnable() { 
       public void run() {  
-        Element videosink = ElementFactory.make("osxvideosink", "sink"); 
-        //pipe.addMany(videosrc, videofilter, videosink);
-        Queue queue1 = new Queue("queue1");
+        Element liveSink = ElementFactory.make("osxvideosink", "livesink"); 
+        Queue liveQueue = new Queue("livequeue");
 
-        pipe.addMany(queue1, videosink);
-        //Element.linkMany(videosrc, videofilter, videosink); 
-                Element.linkMany(tee, queue1, videosink);
-        // Start the pipeline processing 
-        //pipe.setState(State.PLAYING); 
+        pipe.addMany(liveQueue, liveSink);
+        Element.linkMany(tee, liveQueue, liveSink);
       } 
     }); 
     
@@ -49,12 +45,10 @@ public class Recorder
     			Element mediaMuxer = ElementFactory.make("avimux", "muxer");
     			FileSink fileSink = new FileSink("fileSink");
     			fileSink.setLocation("/Users/son/Downloads/b.avi");
-    			Queue queue2 = new Queue("queue2");
-    			//pipe.addMany(videosrc, videofilter, mediaEncoder, mediaMuxer, fileSink);
-    			//Element.linkMany(videosrc, videofilter, mediaEncoder, mediaMuxer, fileSink);
+    			Queue storageQueue = new Queue("storagequeue");
     			
-    			pipe.addMany(queue2, mediaEncoder, mediaMuxer, fileSink);
-    			Element.linkMany(tee, queue2, mediaEncoder, mediaMuxer, fileSink);
+    			pipe.addMany(storageQueue, mediaEncoder, mediaMuxer, fileSink);
+    			Element.linkMany(tee, storageQueue, mediaEncoder, mediaMuxer, fileSink);
     			
     			pipe.setState(State.PLAYING);
     		}
