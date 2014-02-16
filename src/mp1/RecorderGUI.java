@@ -14,20 +14,35 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.gstreamer.Gst;
 
 import common.GStreamerLoader;
+
+
+class GUIValues {
+	public static final int DEFAULT_RESOLUTION_X = 640;
+  public static final int DEFAULT_RESOLUTION_Y = 480;
+  public static final int DEFAULT_FRAME_RATE = 40;
+ 
+	public int resolutionX, resolutionY, frameRate;
+	public GUIValues() {
+		this(DEFAULT_RESOLUTION_X, DEFAULT_RESOLUTION_Y, DEFAULT_FRAME_RATE);
+	}
+	public GUIValues(int x, int y, int f) {
+		resolutionX = x;
+		resolutionY = y;
+		frameRate = f;
+	}
+}
 
 public class RecorderGUI extends JFrame
 {
 	class MyPanel extends JPanel implements ActionListener{
     private static final long serialVersionUID = 1L;
     
-    private int resolutionX = 640;
-    private int resolutionY = 480;
-    private int frameRate = 40;
-    
+        
     private JLabel resolutionXLabel;
     private JLabel resolutionYLabel;
     private JLabel frameRateLabel;
@@ -55,15 +70,15 @@ public class RecorderGUI extends JFrame
     		frameRateLabel = new JLabel(frameRateString);
     		
     		resolutionXField = new JFormattedTextField(resolutionXFormat);
-    		resolutionXField.setValue(resolutionX);
+    		resolutionXField.setValue(GUIValues.DEFAULT_RESOLUTION_X);
     		resolutionXField.setColumns(10);
     		
     		resolutionYField = new JFormattedTextField(resolutionYFormat);
-    		resolutionYField.setValue(resolutionY);
+    		resolutionYField.setValue(GUIValues.DEFAULT_RESOLUTION_Y);
     		resolutionYField.setColumns(10);
     		
     		frameRateField = new JFormattedTextField(frameRateFormat);
-    		frameRateField.setValue(frameRate);
+    		frameRateField.setValue(GUIValues.DEFAULT_FRAME_RATE);
     		frameRateField.setColumns(10);
     		
     		resolutionXLabel.setLabelFor(resolutionXField);
@@ -104,7 +119,19 @@ public class RecorderGUI extends JFrame
 
     public void actionPerformed(ActionEvent e)
     {
-    	 if ("start".equals(e.getActionCommand()) {
+    	 if ("start".equals(e.getActionCommand())) {
+    		 
+    		 /*SwingUtilities.invokeLater(new Runnable() {
+          public void run()
+          {*/
+          	int x = ((Number)resolutionXField.getValue()).intValue();
+       		 	int y = ((Number)resolutionYField.getValue()).intValue();
+       		 	int f = ((Number)frameRateField.getValue()).intValue();
+       		 	GUIValues v = new GUIValues(x, y, f);
+						
+       		 	Recorder.run(v);
+          //}			 
+    		 //});
     		 
     	 }
     }
