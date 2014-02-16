@@ -17,10 +17,9 @@ import common.GStreamerLoader;
 public class Recorder
 {
 	private static Pipeline pipe;
-	public static void main(String[] args) { 
-		GStreamerLoader.loadGStreamer();
-    args = Gst.init("SwingVideoTest", args); 
-    pipe = new Pipeline("pipeline"); 
+	
+	public static void run() {
+		pipe = new Pipeline("pipeline"); 
 
     final Element camera = ElementFactory.make("qtkitvideosrc", "camera"); 
     final Element videoFilter = ElementFactory.make("capsfilter", "videofilter"); 
@@ -39,21 +38,23 @@ public class Recorder
       } 
     }); 
     
-    SwingUtilities.invokeLater(new Runnable() {
-    		public void run() {
-    			Element mediaEncoder = ElementFactory.make("jpegenc", "encoder");
-    			Element mediaMuxer = ElementFactory.make("avimux", "muxer");
-    			FileSink fileSink = new FileSink("fileSink");
-    			fileSink.setLocation("/Users/son/Downloads/b.avi");
-    			Queue storageQueue = new Queue("storagequeue");
-    			
-    			pipe.addMany(storageQueue, mediaEncoder, mediaMuxer, fileSink);
-    			Element.linkMany(tee, storageQueue, mediaEncoder, mediaMuxer, fileSink);
-    			
-    			pipe.setState(State.PLAYING);
-    		}
-    });
-    
+		Element mediaEncoder = ElementFactory.make("jpegenc", "encoder");
+		Element mediaMuxer = ElementFactory.make("avimux", "muxer");
+		FileSink fileSink = new FileSink("fileSink");
+		fileSink.setLocation("/Users/son/Downloads/b.avi");
+		Queue storageQueue = new Queue("storagequeue");
+		
+		pipe.addMany(storageQueue, mediaEncoder, mediaMuxer, fileSink);
+		Element.linkMany(tee, storageQueue, mediaEncoder, mediaMuxer, fileSink);
+		
+		pipe.setState(State.PLAYING);
     Gst.main();
     pipe.setState(State.NULL);
-}}
+	}
+	
+	public static void main(String[] args) { 
+		GStreamerLoader.loadGStreamer();
+    args = Gst.init("Recorder", args);
+		run();
+	}
+}
