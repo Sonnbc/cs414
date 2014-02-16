@@ -10,8 +10,7 @@ public class GStreamerLoader
 					jnaLibraryPath != null ? (jnaLibraryPath + ":") : "");
  
 			newJnaLibraryPath.append(
-					"/System/Library/Frameworks/GStreamer.framework/Versions/0.10-" + 
-							(com.sun.jna.Platform.is64Bit() ? "x64" : "i386") + "/lib:");
+					"/Library/Frameworks/GStreamer.framework/Versions/0.10/lib:");
  
 			System.setProperty("jna.library.path", newJnaLibraryPath.toString());
 		}
