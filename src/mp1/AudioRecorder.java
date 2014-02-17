@@ -21,7 +21,7 @@ public class AudioRecorder {
 		final Element audioconvert =  ElementFactory.make("audioconvert", "audioconvert");
 		final Element encoder = ElementFactory.make("wavenc", "encoder");
 		FileSink fileSink = new FileSink("fileSink");
-		fileSink.setLocation("/Users/masterjildo/Downloads/audiothing.wav");
+		fileSink.setLocation("/Users/son/Downloads/audiothing.wav");
 		pipe.addMany(mic,audioresample,audioconvert,encoder,fileSink);
 		Element.linkMany(mic,audioresample,audioconvert, encoder,fileSink);
 		pipe.setState(State.PLAYING);

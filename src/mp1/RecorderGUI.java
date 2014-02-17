@@ -27,13 +27,15 @@ class GUIValues {
   public static final int DEFAULT_RESOLUTION_Y = 480;
   public static final int DEFAULT_FRAME_RATE = 20;
   public static final String DEFAULT_LOCATION = "/Users/son/Downloads/a.avi";
-  public static final String DEFAULT_ENCODING = "raw";
+  public static final String DEFAULT_VIDEO_ENCODING = "mjpeg";
+  public static final String DEFAULT_AUDIO_ENCODING = "alawenc";
  
 	public int resolutionX = DEFAULT_RESOLUTION_X; 
 	public int resolutionY = DEFAULT_RESOLUTION_Y;
 	public int frameRate = DEFAULT_FRAME_RATE;
 	public String location = DEFAULT_LOCATION;
-	public String encoding = DEFAULT_ENCODING;
+	public String videoEncoding = DEFAULT_VIDEO_ENCODING;
+	public String audioEncoding = DEFAULT_AUDIO_ENCODING;
 	
 	public GUIValues() {
 		//do nothing;
@@ -44,7 +46,7 @@ class GUIValues {
 		resolutionY = y;
 		frameRate = f;
 		location = s;
-		encoding = e;
+		videoEncoding = e;
 	}
 }
 
@@ -91,7 +93,7 @@ public class RecorderGUI extends JFrame
     		locationField = new JTextField(GUIValues.DEFAULT_LOCATION);
     		locationField.setColumns(10);
     		
-    		String[] encodingOoptions = {"raw", "mjpeg", "mpeg4"};
+    		String[] encodingOoptions = {"mjpeg", "mpeg4"};
     		encodingField = new JComboBox(encodingOoptions);
     		encodingField.setSelectedIndex(0);
     		

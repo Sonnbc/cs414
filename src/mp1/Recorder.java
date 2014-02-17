@@ -12,57 +12,70 @@ import org.gstreamer.elements.Tee;
 
 import common.Common;
 import common.ElementChain;
-import common.GStreamerLoader;
 
 public class Recorder
 {
   
 	private Pipeline pipe;
 	
-	public ElementChain makeEncodingChain(GUIValues v) {
-		if ("mpeg4".equals(v.encoding)) {
+	public ElementChain makeVideoEncodingChain(GUIValues v) {
+		ElementChain c = new ElementChain(pipe);
+		Element videoEncoder = null;
+		
+		Element videorateEnforcer = ElementFactory.make("videorate", "videorateenforcer");
+		videorateEnforcer.set("force-fps", v.frameRate);
+		c.addElement(videorateEnforcer);
+		
+		if ("mpeg4".equals(v.videoEncoding)) {
   		Element colorConverter = ElementFactory.make("ffmpegcolorspace", "colorconverter");
-  		Element mediaEncoder = ElementFactory.make("ffenc_mpeg4", "encoder");
-  		Element mediaMuxer = ElementFactory.make("avimux", "muxer");
-  		return new ElementChain(pipe, colorConverter, mediaEncoder, mediaMuxer);
-  	}
-		else if ("mjpeg".equals(v.encoding)) {
-			Element mediaEncoder = ElementFactory.make("jpegenc", "encoder");
-			Element mediaMuxer = ElementFactory.make("avimux", "muxer");
-			return new ElementChain(pipe, mediaEncoder, mediaMuxer);
+  		c.addMany(colorConverter);
+  		videoEncoder = ElementFactory.make("ffenc_mpeg4", "videoencoder");
 		}
-		else if ("raw".equals(v.encoding)) {
-			return null;
+		else if ("mjpeg".equals(v.videoEncoding)) {
+			videoEncoder = ElementFactory.make("jpegenc", "videoencoder");
 		}
-		return null;	//ERROR case;
+		
+		c.addElement(videoEncoder);
+		return c;
 	}
 	
 	public void run(GUIValues v) {
 		pipe = new Pipeline("pipeline"); 
 
-    final Element camera = ElementFactory.make("qtkitvideosrc", "camera"); 
-    final Element videoFilter = ElementFactory.make("capsfilter", "videofilter"); 
+    Element camera = ElementFactory.make("qtkitvideosrc", "camera"); 
+    Element videoFilter = ElementFactory.make("capsfilter", "videofilter"); 
     videoFilter.setCaps(Caps.fromString(
     		"video/x-raw-yuv, framerate=" + v.frameRate + "/1, " +
     		"width=" + v.resolutionX + ", height=" + v.resolutionY));    
-    final Tee tee = new Tee("tee");
-    ElementChain captureChain = new ElementChain(pipe, camera, videoFilter, tee);
+    Tee tee = new Tee("tee");
+    ElementChain videoCaptureChain = new ElementChain(pipe, camera, videoFilter, tee);
+    
+    Element mic = ElementFactory.make("osxaudiosrc", "mic");
+    Element audioFilter = ElementFactory.make("capsfilter", "audiofilter"); 
+    audioFilter.setCaps(Caps.fromString(
+    		"audio/x-raw-float, rate=" + 44100));    
+    Element audioConverter = ElementFactory.make("audioconvert", "audioconverter");
+    Element audioEncoder = ElementFactory.make(v.audioEncoding, "audioencoder");
+    ElementChain audioCaptureChain = new ElementChain(pipe, mic, audioFilter, audioConverter, audioEncoder);
     
     Queue liveQueue = new Queue("livequeue");
   	Element liveSink = ElementFactory.make("osxvideosink", "livesink"); 
   	ElementChain liveChain = new ElementChain(pipe, liveQueue, liveSink);
   	
-  	ElementChain encodingChain = makeEncodingChain(v);
+  	ElementChain videoEncodingChain = makeVideoEncodingChain(v);
   	Queue storageQueue = new Queue("storagequeue");
-		
+  	Element mediaMuxer = ElementFactory.make("avimux", "muxer");
 		FileSink fileSink = new FileSink("fileSink");
 		fileSink.setLocation(v.location);
-		ElementChain storageChain = new ElementChain(pipe, 
-				storageQueue, encodingChain, fileSink);
 		
-    captureChain.link(liveChain);
-    captureChain.link(storageChain);
-
+		ElementChain storageChain = new ElementChain(pipe, 
+				storageQueue, videoEncodingChain, mediaMuxer, fileSink);
+		Element.linkMany(audioCaptureChain.tail, mediaMuxer);
+		
+    videoCaptureChain.link(liveChain);
+    videoCaptureChain.link(storageChain);
+				
+    //System.out.println(Element.linkMany(audioCaptureChain.tail, mediaMuxer));
 		Common.printPipeline(pipe);
 		
     pipe.setState(State.PLAYING);
@@ -70,10 +83,10 @@ public class Recorder
     pipe.setState(State.NULL);
 	}
 	
-	public static void main(String[] args) { 
+	/*public static void main(String[] args) { 
 		GStreamerLoader.loadGStreamer();
     args = Gst.init("Recorder", args);
     Recorder recorder = new Recorder();
 		recorder.run(new GUIValues());
-	}
+	}*/
 }
