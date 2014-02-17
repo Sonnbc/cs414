@@ -10,11 +10,12 @@ import java.text.NumberFormat;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.JTextField;
 
 import org.gstreamer.Gst;
 
@@ -24,16 +25,26 @@ import common.GStreamerLoader;
 class GUIValues {
 	public static final int DEFAULT_RESOLUTION_X = 640;
   public static final int DEFAULT_RESOLUTION_Y = 480;
-  public static final int DEFAULT_FRAME_RATE = 40;
+  public static final int DEFAULT_FRAME_RATE = 20;
+  public static final String DEFAULT_LOCATION = "/Users/son/Downloads/a.avi";
+  public static final String DEFAULT_ENCODING = "raw";
  
-	public int resolutionX, resolutionY, frameRate;
+	public int resolutionX = DEFAULT_RESOLUTION_X; 
+	public int resolutionY = DEFAULT_RESOLUTION_Y;
+	public int frameRate = DEFAULT_FRAME_RATE;
+	public String location = DEFAULT_LOCATION;
+	public String encoding = DEFAULT_ENCODING;
+	
 	public GUIValues() {
-		this(DEFAULT_RESOLUTION_X, DEFAULT_RESOLUTION_Y, DEFAULT_FRAME_RATE);
+		//do nothing;
 	}
-	public GUIValues(int x, int y, int f) {
+	
+	public GUIValues(int x, int y, int f, String s, String e) {
 		resolutionX = x;
 		resolutionY = y;
 		frameRate = f;
+		location = s;
+		encoding = e;
 	}
 }
 
@@ -43,17 +54,17 @@ public class RecorderGUI extends JFrame
     private static final long serialVersionUID = 1L;
     
         
-    private JLabel resolutionXLabel;
-    private JLabel resolutionYLabel;
-    private JLabel frameRateLabel;
-    
-    private static final String resolutionXString = "Horizontal resolution: ";
-    private static final String resolutionYString = "Vertical resolution: ";
-    private static final String frameRateString = "Frame rate:";
+    private JLabel resolutionXLabel = new JLabel("Horizontal resolution: ");
+    private JLabel resolutionYLabel = new JLabel("Vertical resolution: ");
+    private JLabel frameRateLabel = new JLabel("Frame rate :");
+    private JLabel locationLabel = new JLabel("Save as: ");
+    private JLabel encodingLabel = new JLabel("Encoding :");
     
     private JFormattedTextField resolutionXField;
     private JFormattedTextField resolutionYField;
     private JFormattedTextField frameRateField;
+    private JTextField locationField;
+    private JComboBox encodingField;
     
     private NumberFormat resolutionXFormat;
     private NumberFormat resolutionYFormat;
@@ -64,10 +75,6 @@ public class RecorderGUI extends JFrame
     public MyPanel() {
     		super(new BorderLayout());
     		setUpFormats();
-    		
-    		resolutionXLabel = new JLabel(resolutionXString);
-    		resolutionYLabel = new JLabel(resolutionYString);
-    		frameRateLabel = new JLabel(frameRateString);
     		
     		resolutionXField = new JFormattedTextField(resolutionXFormat);
     		resolutionXField.setValue(GUIValues.DEFAULT_RESOLUTION_X);
@@ -81,19 +88,32 @@ public class RecorderGUI extends JFrame
     		frameRateField.setValue(GUIValues.DEFAULT_FRAME_RATE);
     		frameRateField.setColumns(10);
     		
+    		locationField = new JTextField(GUIValues.DEFAULT_LOCATION);
+    		locationField.setColumns(10);
+    		
+    		String[] encodingOoptions = {"raw", "mjpeg", "mpeg4"};
+    		encodingField = new JComboBox(encodingOoptions);
+    		encodingField.setSelectedIndex(0);
+    		
     		resolutionXLabel.setLabelFor(resolutionXField);
     		resolutionYLabel.setLabelFor(resolutionYField);
     		frameRateLabel.setLabelFor(frameRateField);
+    		locationLabel.setLabelFor(locationField);
+    		encodingLabel.setLabelFor(encodingField);
     		
     		JPanel labelPane = new JPanel(new GridLayout(0,1));
     		labelPane.add(resolutionXLabel);
     		labelPane.add(resolutionYLabel);
     		labelPane.add(frameRateLabel);
+    		labelPane.add(locationLabel);
+    		labelPane.add(encodingLabel);
     		
     		JPanel fieldPane = new JPanel(new GridLayout(0,1));
     		fieldPane.add(resolutionXField);
     		fieldPane.add(resolutionYField);
     		fieldPane.add(frameRateField);
+    		fieldPane.add(locationField);
+    		fieldPane.add(encodingField);
     		
     		ImageIcon startButtonIcon = new ImageIcon("res/right.gif");
         startButton = new JButton("Start", startButtonIcon);
@@ -117,22 +137,17 @@ public class RecorderGUI extends JFrame
 	    super.paintComponent(g);
 	  }
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-    	 if ("start".equals(e.getActionCommand())) {
-    		 
-    		 /*SwingUtilities.invokeLater(new Runnable() {
-          public void run()
-          {*/
-          	int x = ((Number)resolutionXField.getValue()).intValue();
-       		 	int y = ((Number)resolutionYField.getValue()).intValue();
-       		 	int f = ((Number)frameRateField.getValue()).intValue();
-       		 	GUIValues v = new GUIValues(x, y, f);
+    	 if ("start".equals(event.getActionCommand())) {
+        	int x = ((Number)resolutionXField.getValue()).intValue();
+     		 	int y = ((Number)resolutionYField.getValue()).intValue();
+     		 	int f = ((Number)frameRateField.getValue()).intValue();
+     		 	String s = locationField.getText();
+     		 	String e = (String) encodingField.getSelectedItem();
+     		 	GUIValues v = new GUIValues(x, y, f, s, e);
 						
-       		 	Recorder.run(v);
-          //}			 
-    		 //});
-    		 
+       		(new Recorder()).run(v);  		 
     	 }
     }
 	}
