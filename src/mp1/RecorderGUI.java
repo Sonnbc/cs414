@@ -26,7 +26,7 @@ class GUIValues {
 	public static final int DEFAULT_RESOLUTION_X = 640;
   public static final int DEFAULT_RESOLUTION_Y = 480;
   public static final int DEFAULT_FRAME_RATE = 20;
-  public static final String DEFAULT_LOCATION = "/Users/son/Downloads/a.avi";
+  public static final String DEFAULT_LOCATION = "/tmp/a.avi";
   public static final String DEFAULT_VIDEO_ENCODING = "mjpeg";
   public static final String DEFAULT_AUDIO_ENCODING = "alawenc";
  
