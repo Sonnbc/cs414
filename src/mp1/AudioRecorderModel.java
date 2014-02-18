@@ -10,7 +10,7 @@ import org.gstreamer.elements.FileSink;
 
 import common.GStreamerLoader;
 
-public class AudioRecorder {
+public class AudioRecorderModel {
 	
 	private Pipeline pipe;
 	/**
@@ -41,7 +41,7 @@ public class AudioRecorder {
 		this.numberOfChannels=numberOfChannels;
 	}
 	
-	public AudioRecorder(String micName, String audioresampleName, String audioconvertName, String encoderName, String location){
+	public AudioRecorderModel(String micName, String audioresampleName, String audioconvertName, String encoderName, String location){
 		this.mic = ElementFactory.make(micName, "mic");
 		this.audioresample =  ElementFactory.make(audioresampleName, "audioresample");
 		this.audioconvert =  ElementFactory.make(audioconvertName, "audioconvert");
@@ -50,7 +50,7 @@ public class AudioRecorder {
 		fileSink.setLocation(location);
 	}
 	
-	public AudioRecorder(String location){
+	public AudioRecorderModel(String location){
 		mic = ElementFactory.make("osxaudiosrc", "mic");
 		audioresample =  ElementFactory.make("audioresample", "audioresample");
 		audioconvert =  ElementFactory.make("audioconvert", "audioconvert");
@@ -82,7 +82,7 @@ public class AudioRecorder {
 	public static void main(String[] args) {
 		GStreamerLoader.loadGStreamer();
 		args = Gst.init("AudioRecorder", args);
-		AudioRecorder ar = new AudioRecorder("/Users/masterjildo/Desktop/audiothing.wav");
+		AudioRecorderModel ar = new AudioRecorderModel("/Users/masterjildo/Desktop/audiothing.wav");
 		ar.setFormat("audio-alaw");
 		ar.setNumberOfChannels("1");
 		ar.setSampleSize("16");
