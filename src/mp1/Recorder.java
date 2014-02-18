@@ -50,13 +50,10 @@ public class Recorder
     Tee tee = new Tee("tee");
     ElementChain videoCaptureChain = new ElementChain(pipe, camera, videoFilter, tee);
     
-    Element mic = ElementFactory.make("osxaudiosrc", "mic");
-    Element audioFilter = ElementFactory.make("capsfilter", "audiofilter"); 
-    audioFilter.setCaps(Caps.fromString(
-    		"audio/x-raw-float, rate=" + 44100));    
+    Element mic = ElementFactory.make("osxaudiosrc", "mic");   
     Element audioConverter = ElementFactory.make("audioconvert", "audioconverter");
     Element audioEncoder = ElementFactory.make(v.audioEncoding, "audioencoder");
-    ElementChain audioCaptureChain = new ElementChain(pipe, mic, audioFilter, audioConverter, audioEncoder);
+    ElementChain audioCaptureChain = new ElementChain(pipe, mic, audioConverter, audioEncoder);
     
     Queue liveQueue = new Queue("livequeue");
   	Element liveSink = ElementFactory.make("osxvideosink", "livesink"); 
