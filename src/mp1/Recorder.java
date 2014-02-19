@@ -102,7 +102,7 @@ public class Recorder
 	public void run(GUIValues v) {
 		pipe = new Pipeline("pipeline"); 
 
-    Element camera = ElementFactory.make("qtkitvideosrc", "camera"); 
+    Element camera = ElementFactory.make("autovideosrc", "camera"); 
     Element videoFilter = ElementFactory.make("capsfilter", "videofilter"); 
     videoFilter.setCaps(Caps.fromString(
     		"video/x-raw-yuv, framerate=" + v.frameRate + "/1, " +
@@ -110,7 +110,7 @@ public class Recorder
     Tee tee = new Tee("tee0");
     ElementChain videoCaptureChain = new ElementChain(pipe, camera, videoFilter, tee);
     
-    Element mic = ElementFactory.make("osxaudiosrc", "mic");   
+    Element mic = ElementFactory.make("autoaudiosrc", "mic");   
     System.out.println(mic.getStaticPad("src"));
     
     Element audioConverter = ElementFactory.make("audioconvert", "audioconverter");
@@ -124,7 +124,7 @@ public class Recorder
     		audioResampler, audioFilter1, audioConverter, audioEncoder);
     
     Queue liveQueue = new Queue("livequeue");
-  	Element liveSink = ElementFactory.make("osxvideosink", "livesink"); 
+  	Element liveSink = ElementFactory.make("autovideosink", "livesink"); 
   	ElementChain liveChain = new ElementChain(pipe, liveQueue, liveSink);
   	
   	Queue encodingQueue = new Queue("encodingqueue");
