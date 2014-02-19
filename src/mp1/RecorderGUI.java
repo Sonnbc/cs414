@@ -29,6 +29,8 @@ class GUIValues {
   public static final String DEFAULT_LOCATION = "/tmp/a.avi";
   public static final String DEFAULT_VIDEO_ENCODING = "mjpeg";
   public static final String DEFAULT_AUDIO_ENCODING = "alawenc";
+  public static final int DEFAULT_AUDIO_RATE = 44100;
+  public static final int DEFAULT_SAMPLE_SIZE = 16;
  
 	public int resolutionX = DEFAULT_RESOLUTION_X; 
 	public int resolutionY = DEFAULT_RESOLUTION_Y;
@@ -36,18 +38,23 @@ class GUIValues {
 	public String location = DEFAULT_LOCATION;
 	public String videoEncoding = DEFAULT_VIDEO_ENCODING;
 	public String audioEncoding = DEFAULT_AUDIO_ENCODING;
+	public int audioRate = DEFAULT_AUDIO_RATE;
+	public int sampleSize = DEFAULT_SAMPLE_SIZE;
+	
 	
 	public GUIValues() {
 		//do nothing;
 	}
 	
-	public GUIValues(int x, int y, int f, String s, String ev, String ea) {
+	public GUIValues(int x, int y, int f, String l, String ev, String ea, int s, int r) {
 		resolutionX = x;
 		resolutionY = y;
 		frameRate = f;
-		location = s;
+		location = l;
 		videoEncoding = ev;
 		audioEncoding = ea;
+		sampleSize = s;
+		audioRate = r;
 	}
 }
 
@@ -63,6 +70,8 @@ public class RecorderGUI extends JFrame
     private JLabel locationLabel = new JLabel("Save as: ");
     private JLabel videoEncodingLabel = new JLabel("Video encoding :");
     private JLabel audioEncodingLabel = new JLabel("Audio encoding :");
+    private JLabel sampleSizeLabel = new JLabel("Audio sample size:");
+    private JLabel rateLabel = new JLabel("Audio rate:");
     
     private JFormattedTextField resolutionXField;
     private JFormattedTextField resolutionYField;
@@ -70,26 +79,26 @@ public class RecorderGUI extends JFrame
     private JTextField locationField;
     private JComboBox videoEncodingField;
     private JComboBox audioEncodingField;
+    private JFormattedTextField sampleSizeField;
+    private JFormattedTextField rateField;
     
-    private NumberFormat resolutionXFormat;
-    private NumberFormat resolutionYFormat;
-    private NumberFormat frameRateFormat;
+    private NumberFormat numberFormat;
     
     protected JButton startButton;
     
     public MyPanel() {
     		super(new BorderLayout());
-    		setUpFormats();
+    		numberFormat = NumberFormat.getNumberInstance();
     		
-    		resolutionXField = new JFormattedTextField(resolutionXFormat);
+    		resolutionXField = new JFormattedTextField(numberFormat);
     		resolutionXField.setValue(GUIValues.DEFAULT_RESOLUTION_X);
     		resolutionXField.setColumns(10);
     		
-    		resolutionYField = new JFormattedTextField(resolutionYFormat);
+    		resolutionYField = new JFormattedTextField(numberFormat);
     		resolutionYField.setValue(GUIValues.DEFAULT_RESOLUTION_Y);
     		resolutionYField.setColumns(10);
     		
-    		frameRateField = new JFormattedTextField(frameRateFormat);
+    		frameRateField = new JFormattedTextField(numberFormat);
     		frameRateField.setValue(GUIValues.DEFAULT_FRAME_RATE);
     		frameRateField.setColumns(10);
     		
@@ -104,12 +113,22 @@ public class RecorderGUI extends JFrame
     		audioEncodingField = new JComboBox(audioEncodingOptions);
     		audioEncodingField.setSelectedIndex(0);
     		
+    		sampleSizeField = new JFormattedTextField(numberFormat);
+    		sampleSizeField.setValue(GUIValues.DEFAULT_SAMPLE_SIZE);
+    		sampleSizeField.setColumns(10);
+    		
+    		rateField = new JFormattedTextField(numberFormat);
+    		rateField.setValue(GUIValues.DEFAULT_AUDIO_RATE);
+    		rateField.setColumns(10);
+    		
     		resolutionXLabel.setLabelFor(resolutionXField);
     		resolutionYLabel.setLabelFor(resolutionYField);
     		frameRateLabel.setLabelFor(frameRateField);
     		locationLabel.setLabelFor(locationField);
     		videoEncodingLabel.setLabelFor(videoEncodingField);
     		audioEncodingLabel.setLabelFor(audioEncodingField);
+    		sampleSizeLabel.setLabelFor(sampleSizeField);
+    		rateLabel.setLabelFor(rateField);
     		
     		JPanel labelPane = new JPanel(new GridLayout(0,1));
     		labelPane.add(resolutionXLabel);
@@ -118,6 +137,8 @@ public class RecorderGUI extends JFrame
     		labelPane.add(locationLabel);
     		labelPane.add(videoEncodingLabel);
     		labelPane.add(audioEncodingLabel);
+    		labelPane.add(sampleSizeLabel);
+    		labelPane.add(rateLabel);
     		
     		JPanel fieldPane = new JPanel(new GridLayout(0,1));
     		fieldPane.add(resolutionXField);
@@ -126,6 +147,8 @@ public class RecorderGUI extends JFrame
     		fieldPane.add(locationField);
     		fieldPane.add(videoEncodingField);
     		fieldPane.add(audioEncodingField);
+    		fieldPane.add(sampleSizeField);
+    		fieldPane.add(rateField);
     		
     		ImageIcon startButtonIcon = new ImageIcon("res/right.gif");
         startButton = new JButton("Start", startButtonIcon);
@@ -138,13 +161,7 @@ public class RecorderGUI extends JFrame
         add(fieldPane, BorderLayout.LINE_END);
         add(startButton, BorderLayout.PAGE_END);
     }
-    
-    private void setUpFormats() {
-      resolutionXFormat = NumberFormat.getNumberInstance();
-      resolutionYFormat = NumberFormat.getNumberInstance();
-      frameRateFormat = NumberFormat.getNumberInstance();
-    }
-    
+        
     public void paintComponent(Graphics g) {
 	    super.paintComponent(g);
 	  }
@@ -155,10 +172,13 @@ public class RecorderGUI extends JFrame
         	int x = ((Number)resolutionXField.getValue()).intValue();
      		 	int y = ((Number)resolutionYField.getValue()).intValue();
      		 	int f = ((Number)frameRateField.getValue()).intValue();
-     		 	String s = locationField.getText();
+     		 	String l = locationField.getText();
      		 	String ev = (String) videoEncodingField.getSelectedItem();
      		 	String ea = (String) audioEncodingField.getSelectedItem();
-     		 	GUIValues v = new GUIValues(x, y, f, s, ev, ea);
+     		 	int s = ((Number) sampleSizeField.getValue()).intValue();
+     		 	int r = ((Number) rateField.getValue()).intValue();
+     		 	
+     		 	GUIValues v = new GUIValues(x, y, f, l, ev, ea, s, r);
 						
        		(new Recorder()).run(v);  		 
     	 }
